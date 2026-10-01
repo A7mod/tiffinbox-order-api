@@ -16,6 +16,8 @@ import (
 	"github.com/A7mod/tiffinbox-order-api/internal/orders"
 )
 
+var version = "dev" // overwritten at build time
+
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil)) // JSON logs: k8s-friendly
 	port := getenv("PORT", "9090")
@@ -52,6 +54,7 @@ func main() {
 
 	go func() { // server runs in its own goroutine
 		log.Info("starting", "port", port)
+		//log.Info("starting", "port", port)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error("server failed", "err", err)
 			os.Exit(1)
