@@ -53,7 +53,7 @@ func main() {
 	defer stop()
 
 	go func() { // server runs in its own goroutine
-		log.Info("starting", "port", port)
+		log.Info("starting", "port", port, "version", version)
 		//log.Info("starting", "port", port)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error("server failed", "err", err)
