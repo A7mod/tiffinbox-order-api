@@ -35,7 +35,7 @@ func main() {
 	pool.Start()
 	orders.NewHandler(store, pool).Register(mux)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok")) // liveness: "process is alive"
+		_, _ = w.Write([]byte("ok")) // liveness: "process is alive"
 	})
 
 	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func main() {
 			http.Error(w, "draining", http.StatusServiceUnavailable) // stop sending me  traffic
 			return
 		}
-		w.Write([]byte("ready"))
+		_, _ = w.Write([]byte("ready"))
 	})
 
 	srv := &http.Server{Addr: ":" + port, Handler: mux}

@@ -29,7 +29,7 @@ func post(t *testing.T, url, body string) int {
 		t.Errorf("post failed: %v", err) // Errorf, not Fatal: safe from goroutines
 		return 0
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	return resp.StatusCode
 }
 
@@ -63,7 +63,7 @@ func TestGetUnknownOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("want 404, got %d", resp.StatusCode)
 	}
