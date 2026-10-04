@@ -58,4 +58,32 @@ jobs:
       - name: Push
         if: github.ref == 'refs/heads/main'
         run: docker push ${{ env.IMAGE }}:${{ env.TAG }}  
+    bump:
+    needs: image                       # only after the image is scanned + pushed
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency: gitops-bump           # two pushes at once → bumps run one at a time
+    steps:
+      - name: Set tag
+        run: echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: A7mod/tiffinbox-gitops
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: gitops
+      - name: Bump dev image tag
+        working-directory: gitops/workloads/order-api/overlays/dev
+        run: |
+          sed -i "s/newTag: .*/newTag: ${TAG}/" kustomization.yaml
+          grep "newTag: ${TAG}" kustomization.yaml     # fail loudly if the edit didn't land
+      - name: Commit and push
+        working-directory: gitops
+        run: |
+          git config user.name  "tiffinbox-ci"
+          git config user.email "tiffinbox-ci@users.noreply.github.com"
+          git diff --quiet && { echo "already at ${TAG}"; exit 0; }
+          git commit -am "order-api: deploy ${TAG} to dev"
+          git pull --rebase
+          git push      
             
